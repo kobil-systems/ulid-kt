@@ -68,6 +68,9 @@ class ULIDTest : FunSpec({
 
   test("Check Validation") {
     shouldThrow<IllegalArgumentException> {
+      ULID("deafbeef")
+    }
+    shouldThrow<IllegalArgumentException> {
       ULID.of(ULID.minTime - 1L, 0, 0)
     }
     shouldThrow<IllegalArgumentException> {
@@ -93,5 +96,11 @@ class ULIDTest : FunSpec({
     val ulid = ULID.newULID()
     val uuid = ulid.toUUID()
     ULID.fromUUID(uuid) shouldBeEqualComparingTo ulid
+  }
+
+  test("Check to/from bytes") {
+    val ulid = ULID.newULID()
+    val bytes = ulid.toBytes()
+    ULID.fromBytes(bytes) shouldBeEqualComparingTo ulid
   }
 })

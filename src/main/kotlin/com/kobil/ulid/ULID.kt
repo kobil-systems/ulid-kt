@@ -30,7 +30,10 @@ class ULID(private val ulid: String) : Comparable<ULID> {
     return ulid
   }
 
-  val epochMillis: Long by lazy { CrockfordBase32.decode48bits(ulid.substring(0, 10)) }
+  val epochMillis: Long by lazy {
+    require(ulid.length == 26) { "ULID must have 26 characters: $ulid (length: ${ulid.length})" }
+    CrockfordBase32.decode48bits(ulid.substring(0, 10))
+  }
 
   val timestamp = epochMillis
 
@@ -54,7 +57,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
     for (i in 0..8) {
       b[i] = ((hi.ushr(64 - (i + 1) * 8)) and 0xffL).toByte()
     }
-    for (i in 0..8) {
+    for (i in 0..7) {
       b[i + 8] = ((low.ushr(64 - (i + 1) * 8)) and 0xffL).toByte()
     }
     return b
