@@ -18,7 +18,8 @@ It follows the [ULID spec](https://github.com/ulid/spec).
 
 ```kotlin
 // Constructors
-val newRandomUlid = ULID.newULID()
+val newRandomUlid: ULID = ULID.newULID()
+val newRandomUlidStr: String = ULID.newULIDString()
 val ulidFromString = ULID("01BX5ZZKBKACTAV9WEVGEMMVRZ")
 val ulidFromUUID = ULID.fromUUID("f93f9fa5-f760-4341-b62b-508def86f087")
 val ulidFromBytes = ULID.fromBytes(byteArray)
