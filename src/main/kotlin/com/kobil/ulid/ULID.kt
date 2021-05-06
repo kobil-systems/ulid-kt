@@ -74,7 +74,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
 
     private val random = SecureRandom.getInstanceStrong()
 
-    private val defaultGenerator = ULIDGenerator { random.generateSeed(10) }
+    private val defaultGenerator = ULIDGenerator { bs -> random.nextBytes(bs); bs }
 
     fun newULID(): ULID = ULID(defaultGenerator.generate())
 
@@ -146,9 +146,9 @@ class ULID(private val ulid: String) : Comparable<ULID> {
 
     /**
      * ULID generator.
-     * @param rnd a function that returns a 80-bit random values in ByteArray (size:10)
+     * @param rng a function that returns a 80-bit random values in ByteArray (size:10)
      */
-    private class ULIDGenerator(val rnd: () -> ByteArray) {
+    private class ULIDGenerator(val rng: (ByteArray) -> ByteArray) {
       private val baseSystemTimeMillis = System.currentTimeMillis()
       private val baseNanoTime = System.nanoTime()
 
@@ -199,7 +199,8 @@ class ULID(private val ulid: String) : Comparable<ULID> {
             }
           } else {
             // No conflict at millisecond level. We can generate a new ULID safely
-            return generateFrom(unixTimeMillis, rnd())
+            val bs = ByteArray(10)
+            return generateFrom(unixTimeMillis, rng(bs))
           }
         }
       }
