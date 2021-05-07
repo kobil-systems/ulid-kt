@@ -36,6 +36,22 @@ println(ULID.isValid("deadbeef"))                   // false
 println(ULID.isValid("01F51KNV65BQH43X6FMZ3JJT66")) // true
 ```
 
+## Performance 
+
+Extensive performance review has not yet been performed, but a basic single-threaded
+throughput test comparing different existing ULID libraries is discussed here.
+
+The tests were performed on an 2.8 GHz Core i7-7700HQ (MacBook Pro 14,3 2017), each
+generating 1 million IDs after a warm-up of 1000 IDs.
+
+```
+com.github.guepardoapps.kulid time: 1330 ms
+          wvlet.airframe.ulid time: 1040 ms
+        de.huxhorn.sulky.ulid time: 9856 ms
+               java.util.UUID time: 676  ms
+               com.kobil.ulid time: 545  ms
+```
+
 ## Building
 
 Tests:
