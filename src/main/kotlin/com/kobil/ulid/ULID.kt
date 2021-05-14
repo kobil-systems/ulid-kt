@@ -67,6 +67,24 @@ class ULID(private val ulid: String) : Comparable<ULID> {
     return this.ulid.compareTo(other.ulid)
   }
 
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as ULID
+
+    if (ulid != other.ulid) return false
+    if (timestamp != other.timestamp) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = ulid.hashCode()
+    result = 31 * result + timestamp.hashCode()
+    return result
+  }
+
   companion object {
     const val minTime = 0L
     const val maxTime = (0L.inv()).ushr(64 - 48) // Timestamp uses 48-bit range

@@ -4,7 +4,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
+import io.kotest.matchers.comparables.shouldNotBeEqualComparingTo
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.util.UUID
 
 class ULIDTest : FunSpec({
@@ -96,6 +98,21 @@ class ULIDTest : FunSpec({
     val ulid = ULID.newULID()
     val uuid = ulid.toUUID()
     ULID.fromUUID(uuid) shouldBeEqualComparingTo ulid
+  }
+
+  test("Check equality and comparisons") {
+    val ulid1 = ULID.fromString("01F5PCMVASGS6PWN00F9VX3TEK")
+    val ulid2 = ULID.fromString("01F5PCMVASGS6PWN00F9VX3TEK")
+    val ulid3 = ULID.fromString("01F5PCMVATGS6PWN00F9VX3TEK") // timestamp + 1
+
+    ulid1 shouldBeEqualComparingTo ulid2
+    ulid1 shouldBe ulid2
+    ulid2 shouldNotBe ulid3
+    ulid2 shouldNotBeEqualComparingTo ulid3
+    (ulid1 < ulid2) shouldBe false
+    (ulid1 > ulid2) shouldBe false
+    (ulid2 < ulid3) shouldBe true
+    (ulid2 > ulid3) shouldBe false
   }
 
   test("Check to/from bytes") {

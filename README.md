@@ -1,7 +1,7 @@
 # Universally Unique Lexicographically Sortable Identifier
 
-This is a re-implementation of the ULID library by [Airframe](https://github.com/wvlet/airframe) in Kotlin.
-It follows the [ULID spec](https://github.com/ulid/spec).
+This is a re-implementation of the ULID library by [Airframe](https://github.com/wvlet/airframe) in Kotlin. It follows
+the [ULID spec](https://github.com/ulid/spec).
 
 ## Advantages
 
@@ -37,13 +37,13 @@ println(ULID.isValid("deadbeef"))                   // false
 println(ULID.isValid("01F51KNV65BQH43X6FMZ3JJT66")) // true
 ```
 
-## Performance 
+## Performance
 
-Extensive performance review has not yet been performed, but a basic single-threaded
-throughput test comparing different existing ULID libraries is discussed here.
+Extensive performance review has not yet been performed, but a basic single-threaded throughput test comparing different
+existing ULID libraries is discussed here.
 
-The tests were performed on an 2.8 GHz Core i7-7700HQ (MacBook Pro 14,3 2017), each
-generating 1 million IDs after a warm-up of 1000 IDs.
+The tests were performed on an 2.8 GHz Core i7-7700HQ (MacBook Pro 14,3 2017), each generating 1 million IDs after a
+warm-up of 1000 IDs.
 
 ```
 com.github.guepardoapps.kulid time: 1330 ms
@@ -72,3 +72,17 @@ Publishing (don't forget the appropriate credentials in `gradle.properties`)
 ```
 ./gradlew publishAllPublicationsToNexusRepository
 ```
+
+## Changelog
+
+### 1.0.2
+
+Add equals/hashcode implementation to fix equality bug
+
+### 1.0.1
+
+Use SecureRandom#nextBytes instead of #generateSeed
+
+### 1.0.0
+
+Initial release
