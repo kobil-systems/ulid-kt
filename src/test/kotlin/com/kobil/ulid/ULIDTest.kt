@@ -94,10 +94,22 @@ class ULIDTest : FunSpec({
     ulid.toUUID() shouldBeEqualComparingTo uuid
   }
 
+  test("Check from UUID String") {
+    val uuidString = UUID.randomUUID().toString()
+    val ulid = ULID.fromUUIDString(uuidString)
+    ulid.toUUID().toString() shouldBeEqualComparingTo uuidString
+  }
+
   test("Check to UUID") {
     val ulid = ULID.newULID()
     val uuid = ulid.toUUID()
     ULID.fromUUID(uuid) shouldBeEqualComparingTo ulid
+  }
+
+  test("Check to UUID String") {
+    val ulid = ULID.newULID()
+    val uuidString = ulid.toUUIDString()
+    uuidString shouldBeEqualComparingTo ulid.toUUID().toString()
   }
 
   test("Check equality and comparisons") {

@@ -75,6 +75,9 @@ Publishing (don't forget the appropriate credentials in `gradle.properties`)
 
 ## Changelog
 
+### 1.0.3
+Added fromUUIDString/toUUIDString functions
+
 ### 1.0.2
 
 Add equals/hashcode implementation to fix equality bug

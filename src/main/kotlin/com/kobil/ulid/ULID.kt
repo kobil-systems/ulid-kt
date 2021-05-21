@@ -51,6 +51,10 @@ class ULID(private val ulid: String) : Comparable<ULID> {
     return UUID(hi, low)
   }
 
+  fun toUUIDString(): String {
+    return toUUID().toString()
+  }
+
   fun toBytes(): ByteArray {
     val (hi, low) = CrockfordBase32.decode128bits(ulid)
     val b = ByteArray(16)
@@ -109,6 +113,10 @@ class ULID(private val ulid: String) : Comparable<ULID> {
       b.putLong(uuid.mostSignificantBits)
       b.putLong(uuid.leastSignificantBits)
       return fromBytes(b.array())
+    }
+
+    fun fromUUIDString(uuid: String): ULID {
+      return fromUUID(UUID.fromString(uuid))
     }
 
     /**
