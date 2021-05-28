@@ -17,6 +17,7 @@ package com.kobil.ulid
  * This is forked from https://github.com/wvlet/airframe/blob/master/airframe-ulid/
  */
 
+import kotlinx.coroutines.delay
 import java.nio.ByteBuffer
 import java.security.SecureRandom
 import java.time.Instant
@@ -96,11 +97,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
 
     private val random = SecureRandom.getInstanceStrong()
 
-    private val defaultGenerator = ULIDGenerator { bs -> random.nextBytes(bs); bs }
-
-    fun newULID(): ULID = ULID(defaultGenerator.generate())
-
-    fun newULIDString(): String = defaultGenerator.generate()
+    internal val defaultGenerator = ULIDGenerator { bs -> random.nextBytes(bs); bs }
 
     fun fromString(ulid: String): ULID {
       require(ulid.length == 26) { "ULID must have 26 characters: $ulid (length: ${ulid.length})" }
@@ -174,7 +171,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
      * ULID generator.
      * @param rng a function that returns a 80-bit random values in ByteArray (size:10)
      */
-    private class ULIDGenerator(val rng: (ByteArray) -> ByteArray) {
+    internal class ULIDGenerator(val rng: (ByteArray) -> ByteArray) {
       private val baseSystemTimeMillis = System.currentTimeMillis()
       private val baseNanoTime = System.nanoTime()
 
@@ -186,7 +183,8 @@ class ULID(private val ulid: String) : Comparable<ULID> {
       }
 
       /**
-       * Generate ULID string.
+       * Generate ULID string. This method is synchronized so that only a single-thread can generate ULID based on the
+       * previous value
        *
        * Tips for optimizing performance:
        *
@@ -198,7 +196,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
        * is ideal.
        * 4. In base32 encoding/decoding, use bit-shift operators as much as possible to utilize CPU registers and memory cache.
        */
-      fun generate(): String {
+      fun generateBlocking(): String {
         val unixTimeMillis: Long = currentTimeInMillis()
         if (unixTimeMillis > maxTime) {
           throw IllegalStateException("unixtime should be less than: $maxTime: $unixTimeMillis")
@@ -217,7 +215,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
               if ((nextHi and (0L.inv().shl(16))) != 0L) {
                 // Random number overflow. Wait for one millisecond and retry
                 Thread.sleep(1)
-                generate()
+                generateBlocking()
               } else {
                 nextHi = nextHi or unixTimeMillis.shl(64 - 48)
                 generateFrom(nextHi, 0)
@@ -228,6 +226,40 @@ class ULID(private val ulid: String) : Comparable<ULID> {
             val bs = ByteArray(10)
             return generateFrom(unixTimeMillis, rng(bs))
           }
+        }
+      }
+
+      /**
+       * Generate ULID String in a coroutine. This call needs to be guarded by a mutex, because ULID generation needs
+       * to happen sequentially to assure ordering
+       */
+      suspend fun generate(): String {
+        val unixTimeMillis: Long = currentTimeInMillis()
+        if (unixTimeMillis > maxTime) {
+          throw IllegalStateException("unixtime should be less than: $maxTime: $unixTimeMillis")
+        }
+
+        val (hi, low) = lastValue.get()
+        val lastUnixTime = (hi.ushr(16)) and 0xffffffffffffL
+        if (lastUnixTime == unixTimeMillis) {
+          // do increment
+          return if (low != 0L.inv()) {
+            generateFrom(hi, low + 1L)
+          } else {
+            var nextHi = (hi and (0L.inv().shl(16)).inv()) + 1
+            if ((nextHi and (0L.inv().shl(16))) != 0L) {
+              // Random number overflow. Wait for one millisecond and retry
+              delay(1)
+              generate()
+            } else {
+              nextHi = nextHi or unixTimeMillis.shl(64 - 48)
+              generateFrom(nextHi, 0)
+            }
+          }
+        } else {
+          // No conflict at millisecond level. We can generate a new ULID safely
+          val bs = ByteArray(10)
+          return generateFrom(unixTimeMillis, rng(bs))
         }
       }
 
