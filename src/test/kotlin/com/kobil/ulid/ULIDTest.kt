@@ -8,7 +8,6 @@ import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.comparables.shouldNotBeEqualComparingTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlinx.coroutines.withContext
 import java.util.UUID
 import com.kobil.ulid.suspending.newULID as suspendingNewULID
 
@@ -138,11 +137,9 @@ class ULIDTest : FunSpec({
 
   test("Check parallel suspend constructor") {
     val ulids = (1..1000).map {
-      withContext(this.coroutineContext) {
-        // Be aware that this is aliased in this file to "suspendingNewULID" to avoid name clashes with the blocking
-        // version used in all other tests
-        ULID.suspendingNewULID()
-      }
+      // Be aware that this is aliased in this file to "suspendingNewULID" to avoid name clashes with the blocking
+      // version used in all other tests
+      ULID.suspendingNewULID()
     }
     ulids.zipWithNext().forEach {
       (it.first < it.second) shouldBe true

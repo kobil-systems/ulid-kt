@@ -37,6 +37,23 @@ println(ULID.isValid("deadbeef"))                   // false
 println(ULID.isValid("01F51KNV65BQH43X6FMZ3JJT66")) // true
 ```
 
+### Coroutine API
+
+ULID generation needs to be synchronized to allow correct handling of sub-millisecond generation. The initial airframe
+implementation uses `synchronized(this)` on a static singleton, and the same pattern was followed here. To accommodate
+the unlikely event of this blocking for a long time, a suspending API without the use of `synchronized` is available:
+
+```kotlin
+import com.kobil.ulid.suspending.newULID
+
+suspend fun businessLogic() {
+  val ulid = ULID.newULID() // 'suspendable' construction of ULID here
+}
+```
+
+Synchronization is done using a Kotlin `Mutex`, which offers more fine-grained synchronization control at a higher cost,
+so using the `suspend` API will degrade throughput to about the same level as `java.util.UUID`.
+
 ## Performance
 
 Extensive performance review has not yet been performed, but a basic single-threaded throughput test comparing different
@@ -75,8 +92,17 @@ Publishing (don't forget the appropriate credentials in `gradle.properties`)
 
 ## Changelog
 
+### 1.1.1
+
+Use `SecureRandom()` instead of `SecureRandom.getInstanceStrong()` to avoid blocking when entropy is low
+
+### 1.1.0
+
+Add suspending API for `newULID` and `newULIDString`
+
 ### 1.0.3
-Added fromUUIDString/toUUIDString functions
+
+Add fromUUIDString/toUUIDString functions
 
 ### 1.0.2
 

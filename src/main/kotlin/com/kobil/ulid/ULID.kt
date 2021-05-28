@@ -95,7 +95,7 @@ class ULID(private val ulid: String) : Comparable<ULID> {
     const val maxTime = (0L.inv()).ushr(64 - 48) // Timestamp uses 48-bit range
     val maxValue: ULID = ULID("7ZZZZZZZZZZZZZZZZZZZZZZZZZ")
 
-    private val random = SecureRandom.getInstanceStrong()
+    private val random = SecureRandom()
 
     internal val defaultGenerator = ULIDGenerator { bs -> random.nextBytes(bs); bs }
 
