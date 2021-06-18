@@ -32,7 +32,7 @@ class ULID internal constructor(private val ulid: String) : Comparable<ULID> {
 
   init {
     // This is a basic sanity check. The constructor is `internal` and therefore not part of the API
-    require(ulid.length == 26) { "Private constructor called with invalid sting of invalid length" }
+    require(ulid.length == 26) { "Private constructor called with sting of invalid length" }
   }
 
   override fun toString(): String {
@@ -99,6 +99,7 @@ class ULID internal constructor(private val ulid: String) : Comparable<ULID> {
     const val minTime = 0L
     const val maxTime = (0L.inv()).ushr(64 - 48) // Timestamp uses 48-bit range
     val maxValue: ULID = ULID("7ZZZZZZZZZZZZZZZZZZZZZZZZZ")
+    val nullValue: ULID = ULID("00000000000000000000000000")
 
     private val random = SecureRandom()
 

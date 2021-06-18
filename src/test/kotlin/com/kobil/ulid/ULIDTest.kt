@@ -70,6 +70,7 @@ class ULIDTest : FunSpec({
 
   test("Check constructors") {
     ULID.of(ULID.minTime, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID("00000000000000000000000000") }
+    ULID.of(ULID.minTime, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID.nullValue }
     ULID.of(1L, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID("00000000010000000000000000") }
     ULID.of(ULID.maxTime, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID("7ZZZZZZZZZ0000000000000000") }
     ULID.of(ULID.maxTime, 0.inv(), 0.inv()) shouldBeRight { it shouldBeEqualComparingTo ULID.maxValue }

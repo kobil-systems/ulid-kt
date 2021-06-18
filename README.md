@@ -95,6 +95,10 @@ Publishing (don't forget the appropriate credentials in `gradle.properties`)
 
 ## Changelog
 
+### 1.2.1
+
+Added `nullValue` constant to the `ULID` class for easier comparison in library users.
+
 ### 1.2.0
 
 Constructors that can fail (i.e., accepting external input) now return `Either<Error, ULID>`
