@@ -17,11 +17,14 @@ the [ULID spec](https://github.com/ulid/spec).
 ## API
 
 ```kotlin
-// Constructors
+// Constructors returning `ULID` objects
 val newRandomUlid: ULID = ULID.newULID()
 val newRandomUlidStr: String = ULID.newULIDString()
+
+// Constructors that can fail and return Either<Error, ULID>
 val ulidFromString = ULID("01BX5ZZKBKACTAV9WEVGEMMVRZ")
-val ulidFromUUID = ULID.fromUUID("f93f9fa5-f760-4341-b62b-508def86f087")
+val ulidFromUUID = ULID.fromUUID(UUID.randomUUID())
+val ulidFromUUIDString = ULID.fromUUIDString("f93f9fa5-f760-4341-b62b-508def86f087")
 val uuid = ULID.newULID().toUUID()
 val ulidFromBytes = ULID.fromBytes(byteArray)
 val ulidFromRawData = ULID.of(unixTimeMillis, randHi, randLow)
@@ -51,8 +54,8 @@ suspend fun businessLogic() {
 }
 ```
 
-Synchronization is done using a Kotlin `Mutex`, which offers more fine-grained synchronization control at a higher cost,
-so using the `suspend` API will degrade throughput to about the same level as `java.util.UUID`.
+Creating ULIDs is synchronized using a Kotlin `Mutex`, which offers more fine-grained synchronization control at a higher
+cost, so using the `suspend` API will degrade throughput to about the same level as `java.util.UUID`.
 
 ## Performance
 
@@ -91,6 +94,10 @@ Publishing (don't forget the appropriate credentials in `gradle.properties`)
 ```
 
 ## Changelog
+
+### 1.2.0
+
+Constructors that can fail (i.e., accepting external input) now return `Either<Error, ULID>`
 
 ### 1.1.1
 
