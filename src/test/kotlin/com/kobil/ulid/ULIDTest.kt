@@ -2,7 +2,7 @@ package com.kobil.ulid
 
 import arrow.core.Either
 import com.kobil.ulid.blocking.newULID
-import io.kotest.assertions.arrow.either.shouldBeRight
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
@@ -20,10 +20,9 @@ class ULIDTest : FunSpec({
       val ulid = ULID.newULID()
       val str = ulid.toString()
 
-      ULID.fromString(str) shouldBeRight { parsed ->
-        parsed shouldBeEqualComparingTo ulid
-        parsed shouldBeLessThanOrEqualTo ULID.maxValue
-      }
+      val parsed = ULID.fromString(str).shouldBeRight()
+      parsed shouldBeEqualComparingTo ulid
+      parsed shouldBeLessThanOrEqualTo ULID.maxValue
     }
   }
 
@@ -31,17 +30,17 @@ class ULIDTest : FunSpec({
     forAll<Long, Long, Long> { a, rh, rl ->
       val unixTime = a and ((0L).inv().shr((64 - 48)))
       // Identity
-      ULID.of(unixTime, rh, rl) shouldBeRight { ulid ->
-        ulid.compareTo(ulid) shouldBe 0
-        ULID.fromString(ulid.toString()) shouldBe ulid
-        ULID.fromBytes(ulid.toBytes()) shouldBe ulid
+      val ulid = ULID.of(unixTime, rh, rl).shouldBeRight()
 
-        // Basic conditions
-        ulid.epochMillis shouldBe unixTime
-        ulid.timestamp shouldBe unixTime
-        ulid.randomness() shouldBe Pair(rh and 0xffffL, rl)
-        ULID.isValid(ulid.toString()) shouldBe true
-      }
+      ulid.compareTo(ulid) shouldBe 0
+      ULID.fromString(ulid.toString()) shouldBe ulid
+      ULID.fromBytes(ulid.toBytes()) shouldBe ulid
+
+      // Basic conditions
+      ulid.epochMillis shouldBe unixTime
+      ulid.timestamp shouldBe unixTime
+      ulid.randomness() shouldBe Pair(rh and 0xffffL, rl)
+      ULID.isValid(ulid.toString()) shouldBe true
     }
   }
 
@@ -62,20 +61,19 @@ class ULIDTest : FunSpec({
   test("Check epochMillis should equal unixTime") {
     forAll<Long> { timeMillis ->
       val unixTime = timeMillis and 0xffffffffffffL
-      ULID.of(unixTime, 0, 0) shouldBeRight { ulid ->
-        ulid.epochMillis shouldBe unixTime
-      }
+      ULID.of(unixTime, 0, 0).shouldBeRight().epochMillis shouldBe unixTime
     }
   }
 
   test("Check constructors") {
-    ULID.of(ULID.minTime, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID("00000000000000000000000000") }
-    ULID.of(ULID.minTime, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID.nullValue }
-    ULID.of(1L, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID("00000000010000000000000000") }
-    ULID.of(ULID.maxTime, 0, 0) shouldBeRight { it shouldBeEqualComparingTo ULID("7ZZZZZZZZZ0000000000000000") }
-    ULID.of(ULID.maxTime, 0.inv(), 0.inv()) shouldBeRight { it shouldBeEqualComparingTo ULID.maxValue }
-    ULID.of(0L, 0, 0.inv()) shouldBeRight { it shouldBeEqualComparingTo ULID("0000000000000FZZZZZZZZZZZZ") }
-    ULID.of(0L, 0.inv(), 0.inv()) shouldBeRight { it shouldBeEqualComparingTo ULID("0000000000ZZZZZZZZZZZZZZZZ") }
+
+    ULID.of(ULID.minTime, 0, 0).shouldBeRight() shouldBeEqualComparingTo ULID("00000000000000000000000000")
+    ULID.of(ULID.minTime, 0, 0).shouldBeRight() shouldBeEqualComparingTo ULID.nullValue
+    ULID.of(1L, 0, 0).shouldBeRight() shouldBeEqualComparingTo ULID("00000000010000000000000000")
+    ULID.of(ULID.maxTime, 0, 0).shouldBeRight() shouldBeEqualComparingTo ULID("7ZZZZZZZZZ0000000000000000")
+    ULID.of(ULID.maxTime, 0L.inv(), 0L.inv()).shouldBeRight() shouldBeEqualComparingTo ULID.maxValue
+    ULID.of(0L, 0, 0L.inv()).shouldBeRight() shouldBeEqualComparingTo ULID("0000000000000FZZZZZZZZZZZZ")
+    ULID.of(0L, 0L.inv(), 0L.inv()).shouldBeRight() shouldBeEqualComparingTo ULID("0000000000ZZZZZZZZZZZZZZZZ")
   }
 
   test("Check Validation") {
@@ -100,22 +98,20 @@ class ULIDTest : FunSpec({
 
   test("Check from UUID") {
     val uuid = UUID.randomUUID()
-    ULID.fromUUID(uuid) shouldBeRight { ulid ->
-      ulid.toUUID() shouldBeEqualComparingTo uuid
-    }
+    val ulid = ULID.fromUUID(uuid).shouldBeRight()
+    ulid.toUUID() shouldBeEqualComparingTo uuid
   }
 
   test("Check from UUID String") {
     val uuidString = UUID.randomUUID().toString()
-    ULID.fromUUIDString(uuidString) shouldBeRight { ulid ->
-      ulid.toUUID().toString() shouldBeEqualComparingTo uuidString
-    }
+    val ulid = ULID.fromUUIDString(uuidString).shouldBeRight()
+    ulid.toUUID().toString() shouldBeEqualComparingTo uuidString
   }
 
   test("Check to UUID") {
     val ulid = ULID.newULID()
     val uuid = ulid.toUUID()
-    ULID.fromUUID(uuid) shouldBeRight { it shouldBeEqualComparingTo ulid }
+    ULID.fromUUID(uuid).shouldBeRight() shouldBeEqualComparingTo ulid
   }
 
   test("Check to UUID String") {
@@ -142,7 +138,7 @@ class ULIDTest : FunSpec({
   test("Check to/from bytes") {
     val ulid = ULID.newULID()
     val bytes = ulid.toBytes()
-    ULID.fromBytes(bytes) shouldBeRight { it shouldBeEqualComparingTo ulid }
+    ULID.fromBytes(bytes).shouldBeRight() shouldBeEqualComparingTo ulid
   }
 
   test("Check parallel suspend constructor") {
