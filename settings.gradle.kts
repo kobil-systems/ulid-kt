@@ -1,1 +1,1 @@
-rootProject.name = "ulid"
+rootProject.name = "ulid-kt"

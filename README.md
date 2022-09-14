@@ -25,7 +25,6 @@ val newRandomUlidStr: String = ULID.newULIDString()
 val ulidFromString = ULID("01BX5ZZKBKACTAV9WEVGEMMVRZ")
 val ulidFromUUID = ULID.fromUUID(UUID.randomUUID())
 val ulidFromUUIDString = ULID.fromUUIDString("f93f9fa5-f760-4341-b62b-508def86f087")
-val uuid = ULID.newULID().toUUID()
 val ulidFromBytes = ULID.fromBytes(byteArray)
 val ulidFromRawData = ULID.of(unixTimeMillis, randHi, randLow)
 
@@ -92,37 +91,3 @@ Publishing (don't forget the appropriate credentials in `gradle.properties`)
 ```
 ./gradlew publishAllPublicationsToNexusRepository
 ```
-
-## Changelog
-
-### 1.2.1
-
-Added `nullValue` constant to the `ULID` class for easier comparison in library users.
-
-### 1.2.0
-
-Constructors that can fail (i.e., accepting external input) now return `Either<Error, ULID>`
-
-### 1.1.1
-
-Use `SecureRandom()` instead of `SecureRandom.getInstanceStrong()` to avoid blocking when entropy is low
-
-### 1.1.0
-
-Add suspending API for `newULID` and `newULIDString`
-
-### 1.0.3
-
-Add fromUUIDString/toUUIDString functions
-
-### 1.0.2
-
-Add equals/hashcode implementation to fix equality bug
-
-### 1.0.1
-
-Use SecureRandom#nextBytes instead of #generateSeed
-
-### 1.0.0
-
-Initial release
